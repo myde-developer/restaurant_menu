@@ -5,12 +5,9 @@
   "main": "app.js",
   "author": "Your Full Name <your.email@example.com>",
   "license": "MIT",
-  "private": true,
-  "type": "module",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "init-db": "node config/database.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
