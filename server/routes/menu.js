@@ -1,7 +1,7 @@
 const express = require("express");
 const pool = require("../config/database");
 const router = express.Router();
-const { verifyToken } = require("../middleware/auth");
+const { verifyToken } = require("../middleware/auth");   // ← THIS LINE IS CRITICAL
 
 router.get("/", async (req, res, next) => {
   try {
@@ -32,9 +32,7 @@ router.put("/:id", verifyToken, async (req, res, next) => {
     const { id } = req.params;
     const { name, description, price, image_url, category_id, is_available } = req.body;
     await pool.query(
-      `UPDATE menu_items 
-       SET name=$1, description=$2, price=$3, image_url=$4, category_id=$5, is_available=$6
-       WHERE id=$7`,
+      `UPDATE menu_items SET name=$1, description=$2, price=$3, image_url=$4, category_id=$5, is_available=$6 WHERE id=$7`,
       [name, description || null, price, image_url || null, category_id, is_available, id]
     );
     res.json({ success: true });
