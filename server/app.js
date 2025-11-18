@@ -17,7 +17,7 @@ app.use("/api/auth", require("./routes/auth"));
 const { verifyToken } = require("./middleware/auth");
 app.use("/api/categories", verifyToken, require("./routes/categories"));
 app.use("/api/orders", verifyToken, require("./routes/orders"));
-app.use("/api/menu", verifyToken, require("./routes/menu")); // for admin POST/PUT/DELETE
+app.use("/api/menu", verifyToken, require("./routes/menu")); 
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
