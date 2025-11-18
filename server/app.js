@@ -1,4 +1,3 @@
-
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -6,23 +5,19 @@ const dotenv = require("dotenv");
 dotenv.config();
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// ============= PUBLIC ROUTES  =============
-app.use("/api/menu", require("./routes/menu"));   
-app.use("/api/feedbacks", require("./routes/feedback"));  
-app.use("/api/auth", require("./routes/auth"));           
-app.use("/api/orders", require("./routes/orders"));  
+// PUBLIC ROUTES
+app.use("/api/menu", require("./routes/menu"));
+app.use("/api/feedbacks", require("./routes/feedback"));
+app.use("/api/auth", require("./routes/auth"));
 
-// ============= PROTECTED ROUTES (Admin only with JWT) =============
-const authMiddleware = require("./middleware/auth");
-
-app.use("/api/categories", authMiddleware, require("./routes/category")); 
-app.use("/api/orders", authMiddleware, require("./routes/orders")); 
-
-app.use(require("./middleware/index"));
+// ADMIN ROUTES
+const { verifyToken } = require("./middleware/auth");
+app.use("/api/categories", verifyToken, require("./routes/categories"));
+app.use("/api/orders", verifyToken, require("./routes/orders"));
+app.use("/api/menu", verifyToken, require("./routes/menu")); // for admin POST/PUT/DELETE
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
