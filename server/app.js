@@ -15,7 +15,7 @@ app.use("/api/auth", require("./routes/auth"));
 
 // ADMIN ROUTES
 const { verifyToken } = require("./middleware/auth");
-app.use("/api/categories", verifyToken, require("./routes/categories"));
+app.use("/api/category", verifyToken, require("./routes/category"));
 app.use("/api/orders", verifyToken, require("./routes/orders"));
 app.use("/api/menu", verifyToken, require("./routes/menu")); 
 
