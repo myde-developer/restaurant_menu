@@ -12,11 +12,11 @@ app.use(express.json());
 app.use("/api/menu", require("./routes/menu"));
 app.use("/api/feedbacks", require("./routes/feedback"));
 app.use("/api/auth", require("./routes/auth"));
+app.use("/api/orders", require("./routes/orders"));
 app.use("/api/category", require("./routes/category"))
 
 // ADMIN ROUTES
 const { verifyToken } = require("./middleware/auth");
-app.use("/api/orders", verifyToken, require("./routes/orders"));
 app.use("/api/menu", verifyToken, require("./routes/menu")); 
 
 const PORT = process.env.PORT || 3000;
