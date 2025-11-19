@@ -4,8 +4,9 @@ const pool = require("../config/database");
 const router = express.Router();
 
 // ============= POST ORDER =============
-router.post("/", async (req, res, next) => {
+router.post("/", async (req, res) => {
   const client = await pool.connect();
+  
   try {
     await client.query("BEGIN");
 
@@ -15,27 +16,39 @@ router.post("/", async (req, res, next) => {
       delivery_address,
       note = "",
       total_price,
-      items: itemsString 
+      items
     } = req.body;
 
-    // Convert string back to array
-    const items = JSON.parse(itemsString);
+    if (!customer_name || !customer_phone || !delivery_address || !items || !total_price) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
 
-    // Insert main order
+    if (!Array.isArray(items)) {
+      return res.status(400).json({ success: false, message: "Items must be an array" });
+    }
+
+    // Insert order
     const orderQuery = await client.query(
       `INSERT INTO orders (customer_name, customer_phone, delivery_address, note, total_price)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
       [customer_name, customer_phone, delivery_address, note, total_price]
     );
 
     const orderId = orderQuery.rows[0].id;
 
-    // Insert each item
+    // Insert items
     for (const item of items) {
       await client.query(
         `INSERT INTO order_items (order_id, menu_item_id, quantity, price, item_name)
          VALUES ($1, $2, $3, $4, $5)`,
-        [orderId, item.id, item.quantity, item.price, item.name]
+        [
+          orderId,
+          item.id,
+          item.quantity,
+          item.price,
+          item.name
+        ]
       );
     }
 
@@ -44,8 +57,8 @@ router.post("/", async (req, res, next) => {
 
   } catch (error) {
     await client.query("ROLLBACK");
-    console.error("Order error:", error);
-    next(error);
+    console.error("ORDER ERROR:", error);
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
   } finally {
     client.release();
   }
