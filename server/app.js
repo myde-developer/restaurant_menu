@@ -16,8 +16,7 @@ app.use("/api/orders", require("./routes/orders"));
 app.use("/api/category", require("./routes/category"))
 
 // ADMIN ROUTES
-const { verifyToken } = require("./middleware/auth");
-app.use("/api/menu", verifyToken, require("./routes/menu")); 
+const { verifyToken } = require("./middleware/auth"); 
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
