@@ -1,3 +1,4 @@
+
 const { Pool } = require("pg");
 require("dotenv").config();
 
@@ -54,9 +55,19 @@ const initDB = async () => {
         menu_item_id INT REFERENCES menu_items(id) ON DELETE CASCADE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                      WHERE table_name='feedbacks' AND column_name='menu_item_id') THEN
+          ALTER TABLE feedbacks ADD COLUMN menu_item_id INT REFERENCES menu_items(id) ON DELETE CASCADE;
+        END IF;
+      END $$;
+
+      UPDATE feedbacks SET menu_item_id = 1 WHERE menu_item_id IS NULL;
     `);
 
-    console.log("Database initialized");
+    console.log("Database initialized with food-specific reviews support");
     console.log("Tables: categories, menu_items, orders, order_items, feedbacks");
   } catch (error) {
     console.error("Error initializing database:", error.message);
