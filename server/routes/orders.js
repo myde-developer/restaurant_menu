@@ -2,6 +2,7 @@
 const express = require("express");
 const pool = require("../config/database");
 const router = express.Router();
+const { verifyToken } = require("../middleware/auth");
 
 // ============= POST ORDER =============
 router.post("/", async (req, res) => {
@@ -72,7 +73,7 @@ router.post("/", async (req, res) => {
 });
 
 // ============= GET ALL ORDERS (Admin only) =============
-router.get("/", async (req, res, next) => {
+router.get("/", verifyToken, async (req, res, next) => { 
   try {
     const result = await pool.query(`
       SELECT o.*, 
@@ -84,7 +85,8 @@ router.get("/", async (req, res, next) => {
     `);
     res.json({ success: true, data: result.rows });
   } catch (error) {
-    next(error);
+    console.error("Get orders error:", error);
+    res.status(500).json({ success: false, message: "Failed to load orders" });
   }
 });
 

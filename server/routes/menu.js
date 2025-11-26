@@ -1,8 +1,10 @@
+
 const express = require("express");
 const pool = require("../config/database");
 const router = express.Router();
-const { verifyToken } = require("../middleware/auth");   
+const { verifyToken } = require("../middleware/auth");
 
+// GET all menu items
 router.get("/", async (req, res, next) => {
   try {
     const result = await pool.query(`
@@ -36,6 +38,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
+// POST new menu item
 router.post("/", verifyToken, async (req, res, next) => {
   try {
     const { category_id, name, description, price, image_url, is_available = true } = req.body;
@@ -48,6 +51,7 @@ router.post("/", verifyToken, async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
+// UPDATE menu item
 router.put("/:id", verifyToken, async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -60,13 +64,12 @@ router.put("/:id", verifyToken, async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
+// DELETE menu item
 router.delete("/:id", verifyToken, async (req, res, next) => {
   try {
     await pool.query("DELETE FROM menu_items WHERE id = $1", [req.params.id]);
     res.json({ success: true });
   } catch (error) { next(error); }
 });
-
-
 
 module.exports = router;
