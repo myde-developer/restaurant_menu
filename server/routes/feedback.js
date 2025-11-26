@@ -10,11 +10,10 @@ router.post("/", async (req, res) => {
     
     console.log("Received feedback data:", { customer_name, rating, comment, menu_item_id });
     
-    // Validate required fields
-    if (!customer_name || !rating || !comment || !menu_item_id) {
+    if (!rating || !comment || !menu_item_id) {
       return res.status(400).json({ 
         success: false, 
-        error: "All fields are required: customer_name, rating, comment, menu_item_id" 
+        error: "Rating, comment, and menu_item_id are required" 
       });
     }
     
@@ -39,14 +38,18 @@ router.post("/", async (req, res) => {
       });
     }
 
+    const finalCustomerName = customer_name && customer_name.trim() !== '' 
+      ? customer_name 
+      : 'Anonymous Customer';
+
     // Insert the feedback
     const result = await pool.query(
       `INSERT INTO feedbacks (customer_name, rating, comment, menu_item_id) 
        VALUES ($1, $2, $3, $4) RETURNING *`,
-      [customer_name, parseInt(rating), comment, parseInt(menu_item_id)]
+      [finalCustomerName, parseInt(rating), comment, parseInt(menu_item_id)]
     );
     
-    console.log("Feedback inserted successfully for menu item:", menu_item_id);
+    console.log("Feedback inserted successfully for:", finalCustomerName);
     
     res.status(201).json({ 
       success: true, 
@@ -61,9 +64,14 @@ router.post("/", async (req, res) => {
       try {
         console.log("Falling back to simple insert without menu_item_id...");
         const { customer_name, rating, comment } = req.body;
+        
+        const finalCustomerName = customer_name && customer_name.trim() !== '' 
+          ? customer_name 
+          : 'Anonymous Customer';
+          
         const result = await pool.query(
           `INSERT INTO feedbacks (customer_name, rating, comment) VALUES ($1, $2, $3) RETURNING *`,
-          [customer_name, parseInt(rating), comment]
+          [finalCustomerName, parseInt(rating), comment]
         );
         
         return res.status(201).json({ 
@@ -147,3 +155,4 @@ router.get("/", async (req, res) => {
 });
 
 module.exports = router;
+[file content end]
