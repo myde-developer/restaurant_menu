@@ -41,7 +41,7 @@ const initDB = async () => {
         id SERIAL PRIMARY KEY,
         order_id INT REFERENCES orders(id) ON DELETE CASCADE,
         menu_item_id INT REFERENCES menu_items(id),
-        item_name VARCHAR(150) NOT NULL,   -- We save name too (for easy display)
+        item_name VARCHAR(150) NOT NULL,
         quantity INT NOT NULL CHECK (quantity > 0),
         price DECIMAL(10,2) NOT NULL
       );
@@ -51,6 +51,7 @@ const initDB = async () => {
         customer_name VARCHAR(100) NOT NULL,
         rating INT CHECK (rating BETWEEN 1 AND 5),
         comment TEXT,
+        menu_item_id INT REFERENCES menu_items(id) ON DELETE CASCADE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);

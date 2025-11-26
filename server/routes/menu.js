@@ -1,7 +1,7 @@
 const express = require("express");
 const pool = require("../config/database");
 const router = express.Router();
-const { verifyToken } = require("../middleware/auth");   // ← THIS LINE IS CRITICAL
+const { verifyToken } = require("../middleware/auth");   
 
 router.get("/", async (req, res, next) => {
   try {
@@ -13,6 +13,27 @@ router.get("/", async (req, res, next) => {
     `);
     res.json({ success: true, data: result.rows });
   } catch (error) { next(error); }
+});
+
+router.get("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(`
+      SELECT mi.*, c.name AS category_name 
+      FROM menu_items mi
+      JOIN categories c ON mi.category_id = c.id
+      WHERE mi.id = $1
+    `, [id]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: "Menu item not found" });
+    }
+    
+    res.json({ success: true, data: result.rows[0] });
+  } catch (error) { 
+    console.error('Get menu item error:', error);
+    next(error); 
+  }
 });
 
 router.post("/", verifyToken, async (req, res, next) => {
@@ -45,5 +66,7 @@ router.delete("/:id", verifyToken, async (req, res, next) => {
     res.json({ success: true });
   } catch (error) { next(error); }
 });
+
+
 
 module.exports = router;

@@ -23,7 +23,14 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
-    if (!Array.isArray(items)) {
+    let itemsArray;
+    try {
+      itemsArray = typeof items === 'string' ? JSON.parse(items) : items;
+    } catch (parseError) {
+      return res.status(400).json({ success: false, message: "Invalid items format" });
+    }
+
+    if (!Array.isArray(itemsArray)) {
       return res.status(400).json({ success: false, message: "Items must be an array" });
     }
 
@@ -38,7 +45,7 @@ router.post("/", async (req, res) => {
     const orderId = orderQuery.rows[0].id;
 
     // Insert items
-    for (const item of items) {
+    for (const item of itemsArray) {
       await client.query(
         `INSERT INTO order_items (order_id, menu_item_id, quantity, price, item_name)
          VALUES ($1, $2, $3, $4, $5)`,
